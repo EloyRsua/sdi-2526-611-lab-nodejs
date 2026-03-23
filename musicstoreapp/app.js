@@ -16,9 +16,10 @@ let usersRouter = require('./routes/users');
 const { MongoClient } = require("mongodb");
 const connectionStrings = 'mongodb+srv://admin:sdi@musicstorecluster.85bsu7o.mongodb.net/?appName=musicstorecluster';
 const dbClient = new MongoClient(connectionStrings);
+let songsRepository = require("./repositories/songsRepository.js");
+songsRepository.init(app, dbClient);
 //app.set('connectionStrings', url);
-require("./routes/songs.js")(app, dbClient);
-
+require("./routes/songs.js")(app, songsRepository);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
