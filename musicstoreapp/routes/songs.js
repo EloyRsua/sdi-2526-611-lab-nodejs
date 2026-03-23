@@ -17,10 +17,6 @@ module.exports = function(app,songsRepository) {
         });
     })
     app.post('/songs/add', function (req, res) {
-        if ( req.session.user == null){
-            res.redirect("/shop");
-            return;
-        }
         let song = {
             title: req.body.title,
             kind: req.body.kind,
@@ -72,11 +68,24 @@ module.exports = function(app,songsRepository) {
         res.render("shop.twig", response);
     });
     app.get('/songs/add', function (req, res) {
-        if ( req.session.user == null){
-            res.redirect("/shop");
-            return;
-        }
         res.render("songs/add.twig")
+    });
+    app.get ('/songs/edit/:id', function (req, res) {
+        let filter = {_id: new ObjectId(req.params.id)};
+        songsRepository.findSong(filter, {}).then(song => {
+            res.render("songs/edit.twig", {song: song});
+        }).catch(error => {
+            res.send("Se ha producido un error al recuperar la canción " + error)
+        });
+    });
+    app.get('/publications', function (req, res) {
+        let filter = {author: req.session.user};
+        let options = {sort: {title: 1}};
+        songsRepository.getSongs(filter, options).then(songs => {
+            res.render("publications.twig", {songs: songs});
+        }).catch(error => {
+            res.send("Se ha producido un error al listar las publicaciones del usuario: " + error)
+        });
     });
     app.get('/songs/:id', function (req, res) {
         let filter = {_id: new ObjectId(req.params.id)};
@@ -86,7 +95,59 @@ module.exports = function(app,songsRepository) {
         }).catch(error => {
             res.send("Se ha producido un error al buscar la canción " + error)
         });
+    });
+    app.post('/songs/edit/:id', function (req, res) {
+        let song = {
+            title: req.body.title,
+            kind: req.body.kind,
+            price: req.body.price,
+            author: req.session.user
+        }
+        let songId = req.params.id;
+        let filter = {_id: ObjectId(songId)};
+//que no se cree un documento nuevo, si no existe
+        const options = {upsert: false}
+        songsRepository.updateSong(song, filter, options).then(result => {
+//res.send("Se ha modificado "+ result.modifiedCount + " registro");
+            step1UpdateCover(req.files, songId, function (result) {
+                if (result == null) {
+                    res.send("Error al actualizar la portada o el audio de la canción");
+                } else {
+                    res.send("Se ha modificado el registro correctamente");
+                }
+            });
+        }).catch(error => {
+            res.send("Se ha producido un error al modificar la canción " + error)
+        });
     })
+    function step1UpdateCover(files, songId, callback) {
+        if (files && files.cover != null) {
+            let image = files.cover;
+            image.mv(app.get("uploadPath") + '/public/covers/' + songId + '.png', function (err) {
+                if (err) {
+                    callback(null); // ERROR
+                } else {
+                    step2UpdateAudio(files, songId, callback); // SIGUIENTE
+                }
+            });
+        } else {
+            step2UpdateAudio(files, songId, callback); // SIGUIENTE
+        }
+    };
+    function step2UpdateAudio(files, songId, callback) {
+        if (files && files.audio != null) {
+            let audio = files.audio;
+            audio.mv(app.get("uploadPath") + '/public/audios/' + songId + '.mp3', function (err) {
+                if (err) {
+                    callback(null); // ERROR
+                } else {
+                    callback(true); // FIN
+                }
+            });
+        } else {
+            callback(true); // FIN
+        }
+    };
     app.get('/songs/:kind/:id', function(req, res) {
         let response = 'id: ' + req.params.id + '<br>'
             + 'Tipo de música: ' + req.params.kind;
