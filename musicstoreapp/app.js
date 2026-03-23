@@ -6,31 +6,40 @@ var logger = require('morgan');
 
 let app = express();
 
-let bodyParser = require('body-parser');
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-let indexRouter = require('./routes/index');
-let usersRouter = require('./routes/users');
+// Subida de archivos (fileupload)
+let fileUpload = require('express-fileupload');
+app.use(fileUpload({
+  limits: { fileSize: 50 * 1024 * 1024 },
+  createParentPath: true
+}));
+app.set('uploadPath', __dirname);
 
-//Conexion a MongoDB
-const { MongoClient } = require("mongodb");
-const connectionStrings = 'mongodb+srv://admin:sdi@musicstorecluster.85bsu7o.mongodb.net/?appName=musicstorecluster';
-const dbClient = new MongoClient(connectionStrings);
-let songsRepository = require("./repositories/songsRepository.js");
-songsRepository.init(app, dbClient);
-//app.set('connectionStrings', url);
-require("./routes/songs.js")(app, songsRepository);
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'twig');
-
+// Middlewares básicos y Body-parser integrados
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Motor de vistas
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'twig');
+
+// Conexion a MongoDB
+const { MongoClient } = require("mongodb");
+const connectionStrings = 'mongodb+srv://admin:sdi@musicstorecluster.85bsu7o.mongodb.net/?appName=musicstorecluster';
+const dbClient = new MongoClient(connectionStrings);
+
+let songsRepository = require("./repositories/songsRepository.js");
+songsRepository.init(app, dbClient);
+
+let indexRouter = require('./routes/index');
+let usersRouter = require('./routes/users');
+
+// 1. Primero las de canciones
+require("./routes/songs.js")(app, songsRepository);
+
+// 2. Luego las genéricas
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
@@ -41,11 +50,8 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
   res.status(err.status || 500);
   res.render('error');
 });
