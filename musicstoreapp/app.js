@@ -11,7 +11,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 let indexRouter = require('./routes/index');
 let usersRouter = require('./routes/users');
-require("./routes/songs.js")(app);
+
+//Conexion a MongoDB
+const { MongoClient } = require("mongodb");
+const connectionStrings = 'mongodb+srv://admin:sdi@musicstorecluster.85bsu7o.mongodb.net/?appName=musicstorecluster';
+const dbClient = new MongoClient(connectionStrings);
+//app.set('connectionStrings', url);
+require("./routes/songs.js")(app, dbClient);
 
 
 // view engine setup
