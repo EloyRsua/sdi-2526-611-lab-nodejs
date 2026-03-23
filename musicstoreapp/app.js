@@ -6,6 +6,15 @@ var logger = require('morgan');
 
 let app = express();
 
+let expressSession = require('express-session');
+app.use(expressSession({
+  secret: 'abcdefg',
+  resave: true,
+  saveUninitialized: true
+}));
+
+let crypto = require('crypto');
+
 // Subida de archivos (fileupload)
 let fileUpload = require('express-fileupload');
 app.use(fileUpload({
@@ -13,6 +22,8 @@ app.use(fileUpload({
   createParentPath: true
 }));
 app.set('uploadPath', __dirname);
+app.set('clave','abcdefg');
+app.set('crypto',crypto);
 
 // Middlewares básicos y Body-parser integrados
 app.use(logger('dev'));
@@ -33,15 +44,19 @@ const dbClient = new MongoClient(connectionStrings);
 let songsRepository = require("./repositories/songsRepository.js");
 songsRepository.init(app, dbClient);
 
+const usersRepository = require("./repositories/usersRepository.js");
+usersRepository.init(app, dbClient);
+require("./routes/users.js")(app, usersRepository);
 let indexRouter = require('./routes/index');
-let usersRouter = require('./routes/users');
+//let usersRouter = require('./routes/users');
+
 
 // 1. Primero las de canciones
 require("./routes/songs.js")(app, songsRepository);
 
 // 2. Luego las genéricas
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+//app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
