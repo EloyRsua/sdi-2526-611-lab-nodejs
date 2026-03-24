@@ -19,7 +19,8 @@ app.use("/songs/add",userSessionRouter);
 app.use("/publications",userSessionRouter);
 //app.use("/audios/",userSessionRouter);
 app.use("/audios/",userAudiosRouter);
-app.use("/shop/",userSessionRouter)
+app.use("/shop/",userSessionRouter);
+app.use("/songs/favorites",userSessionRouter);
 
 let crypto = require('crypto');
 
@@ -49,8 +50,13 @@ const { MongoClient } = require("mongodb");
 const connectionStrings = 'mongodb+srv://admin:sdi@musicstorecluster.85bsu7o.mongodb.net/?appName=musicstorecluster';
 const dbClient = new MongoClient(connectionStrings);
 
+//Repositorios
 let songsRepository = require("./repositories/songsRepository.js");
 songsRepository.init(app, dbClient);
+app.set("songsRepository", songsRepository);
+
+let favoriteSongsRepository = require("./repositories/favoriteSongsRepository.js");
+favoriteSongsRepository.init(app, dbClient);
 
 const usersRepository = require("./repositories/usersRepository.js");
 usersRepository.init(app, dbClient);
@@ -59,10 +65,13 @@ let indexRouter = require('./routes/index');
 //let usersRouter = require('./routes/users');
 
 
-// 1. Primero las de canciones
+// 1. Primero las de favoritos (antes que songs.js, por el orden de procesamiento de rutas)
+require("./routes/songs/favorites.js")(app, favoriteSongsRepository);
+
+// 2. Luego las de canciones
 require("./routes/songs.js")(app, songsRepository);
 
-// 2. Luego las genéricas
+// 3. Luego las genéricas
 app.use('/', indexRouter);
 //app.use('/users', usersRouter);
 
