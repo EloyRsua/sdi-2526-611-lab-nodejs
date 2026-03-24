@@ -91,9 +91,13 @@ module.exports = function(app,songsRepository) {
         let filter = {_id: new ObjectId(req.params.id)};
         let options = {};
         songsRepository.findSong(filter, options).then(song => {
-            res.render("songs/song.twig", {song: song});
+            let commentsRepository = app.get("commentsRepository");
+            let commentsFilter = {song_id: new ObjectId(req.params.id)};
+            return commentsRepository.getComments(commentsFilter, {}).then(comments => {
+                res.render("songs/song.twig", {song: song, comments: comments});
+            });
         }).catch(error => {
-            res.send("Se ha producido un error al buscar la canción " + error)
+            res.send("Se ha producido un error al buscar la canción " + error);
         });
     });
     app.post('/songs/edit/:id', function (req, res) {

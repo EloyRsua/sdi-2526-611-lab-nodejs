@@ -64,6 +64,12 @@ require("./routes/users.js")(app, usersRepository);
 let indexRouter = require('./routes/index');
 //let usersRouter = require('./routes/users');
 
+let commentsRepository = require("./repositories/commentsRepository.js");
+commentsRepository.init(app, dbClient);
+app.set("commentsRepository", commentsRepository);
+
+require("./routes/comments.js")(app, commentsRepository);
+
 
 // 1. Primero las de favoritos (antes que songs.js, por el orden de procesamiento de rutas)
 require("./routes/songs/favorites.js")(app, favoriteSongsRepository);
