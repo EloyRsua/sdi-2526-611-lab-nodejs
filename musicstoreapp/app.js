@@ -3,7 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+console.log(">>> 1. Cargando módulos...");
 let app = express();
 
 let expressSession = require('express-session');
@@ -46,11 +46,13 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'twig');
 
 // Conexion a MongoDB
+console.log(">>> 2. Conectando a MongoDB...");
 const { MongoClient } = require("mongodb");
 const connectionStrings = 'mongodb+srv://admin:sdi@musicstorecluster.85bsu7o.mongodb.net/?appName=musicstorecluster';
 const dbClient = new MongoClient(connectionStrings);
 
 //Repositorios
+console.log(">>> 3. Inicializando repositorios...");
 let songsRepository = require("./repositories/songsRepository.js");
 songsRepository.init(app, dbClient);
 app.set("songsRepository", songsRepository);
