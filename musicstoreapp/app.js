@@ -21,6 +21,8 @@ app.use("/publications",userSessionRouter);
 app.use("/audios/",userAudiosRouter);
 app.use("/shop/",userSessionRouter);
 app.use("/songs/favorites",userSessionRouter);
+app.use("/songs/buy",userSessionRouter);
+app.use("/purchases",userSessionRouter);
 
 let crypto = require('crypto');
 
