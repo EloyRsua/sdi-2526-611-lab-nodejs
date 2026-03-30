@@ -33,6 +33,22 @@ module.exports = {
         }
     },
 
+    getSongsPg: async function (filter, options, page) {
+        try {
+            const limit = 4;
+            await this.dbClient.connect();
+            const database = this.dbClient.db(this.database);
+            const songsCollection = database.collection(this.collectionName);
+            const songsCollectionCount = await songsCollection.count();
+            const cursor = songsCollection.find(filter, options).skip((page - 1) * limit).limit(limit)
+            const songs = await cursor.toArray();
+            const result = {songs: songs, total: songsCollectionCount};
+            return result;
+        } catch (error) {
+            throw (error);
+        }
+    },
+
     getSongs: async function (filter, options) {
         try {
             await this.dbClient.connect();
