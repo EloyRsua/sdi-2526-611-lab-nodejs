@@ -37,12 +37,12 @@ module.exports = function(app,songsRepository) {
                                     .then(res.send("Agregada la canción ID: " + result.songId))
                                     .catch(error => res.send("Error al subir el audio de la canción"))
                             }else {
-                                res.send("Agregada la canción ID: " + result.songId)
+                                res.redirect("/publications");
                             }
                         })
                         .catch(error => res.send("Error al subir la portada de la canción"))
                 } else {
-                    res.send("Agregada la canción ID: " + result.songId)
+                    res.redirect("/publications");
                 }
             } else {
                 res.send("Error al insertar canción " + result.error);
@@ -129,7 +129,7 @@ module.exports = function(app,songsRepository) {
                 if (result == null) {
                     res.send("Error al actualizar la portada o el audio de la canción");
                 } else {
-                    res.send("Se ha modificado el registro correctamente");
+                    res.redirect("/publications");
                 }
             });
         }).catch(error => {
