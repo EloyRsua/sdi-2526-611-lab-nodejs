@@ -1,7 +1,22 @@
 {% extends 'layout.twig' %}
 
-{% block body %}
-  <h1>{{message}}</h1>
-  <h2>{{error.status}}</h2>
-  <pre>{{error.stack}}</pre>
+{% block title %} Error - uoMusic {% endblock %}
+
+{% block main_container %}
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <!-- Usamos un alert de Bootstrap para darle estilo al error -->
+      <div class="alert alert-danger" style="margin-top: 50px;">
+        <h3><span class="glyphicon glyphicon-exclamation-sign"></span> Se ha producido un error</h3>
+        <p style="font-size: 16px; margin-top: 15px;">
+          {{ mensaje }}
+        </p>
+      </div>
+
+      <div class="text-center" style="margin-top: 20px;">
+        <!-- Un botón útil para que el usuario no se quede atrapado -->
+        <a href="javascript:history.back()" class="btn btn-primary">Volver atrás</a>
+      </div>
+    </div>
+  </div>
 {% endblock %}

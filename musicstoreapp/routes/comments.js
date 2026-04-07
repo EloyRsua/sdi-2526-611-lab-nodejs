@@ -20,19 +20,19 @@ module.exports = function (app, commentsRepository) {
         let filter = {_id: new ObjectId(req.params.id)};
         commentsRepository.getComments(filter, {}).then(comments => {
             if (comments.length === 0) {
-                res.send("Comentario no encontrado");
+                res.render("error.twig", { mensaje: "Comentario no encontrado" });
                 return;
             }
             let comment = comments[0];
             if (comment.author !== req.session.user) {
-                res.send("No puedes borrar un comentario que no es tuyo");
+                res.render("error.twig", { mensaje: "No puedes borar un comentario que no es tuyo" });
                 return;
             }
             return commentsRepository.deleteComment(filter).then(result => {
                 res.redirect("/songs/" + comment.song_id);
             });
         }).catch(error => {
-            res.send("Se ha producido un error al borrar el comentario: " + error);
+            res.render("error.twig", { mensaje: "Se ha producido un error al borrar el comentario" + error });
         });
     });
 };

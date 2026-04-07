@@ -7,7 +7,7 @@ module.exports = function (app, favoriteSongsRepository) {
             let totalPrice = songs.reduce((acc, song) => acc + song.price, 0);
             res.render("songs/favorites.twig", {songs: songs, totalPrice: totalPrice});
         }).catch(error => {
-            res.send("Se ha producido un error al listar las canciones favoritas: " + error);
+            res.render("error.twig", { mensaje: "Se ha producido un error al listar canciones favoritas" + error });
         });
     });
     app.post('/songs/favorites/add/:song_id', function (req, res) {
@@ -25,7 +25,7 @@ module.exports = function (app, favoriteSongsRepository) {
         }).then(insertedId => {
             res.redirect("/songs/favorites");
         }).catch(error => {
-            res.send("Se ha producido un error al añadir la canción a favoritos: " + error);
+            res.render("error.twig", { mensaje: "Se ha producido un error al añadir la canción a favoritos: " + error});
         });
     });
     app.get('/songs/favorites/delete/:song_id', function (req, res) {
@@ -33,7 +33,7 @@ module.exports = function (app, favoriteSongsRepository) {
         favoriteSongsRepository.deleteFavoriteSong(filter).then(result => {
             res.redirect("/songs/favorites");
         }).catch(error => {
-            res.send("Se ha producido un error al eliminar la canción de favoritos: " + error);
+            res.render("error.twig", { mensaje:"Se ha producido un error al eliminar la canción de favoritos: " + error});
         });
     });
 };

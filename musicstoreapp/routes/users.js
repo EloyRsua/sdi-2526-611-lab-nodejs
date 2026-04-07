@@ -43,7 +43,7 @@ module.exports = function (app, usersRepository) {
       }
     }).catch(error => {
       req.session.user = null;
-      res.send("Se ha producido un error al buscar el usuario: " + error)
+      res.render("error.twig", { mensaje: "Se ha producido un error al buscar el usuario." });
     })
   })
   app.get('/users/logout', function (req, res) {
