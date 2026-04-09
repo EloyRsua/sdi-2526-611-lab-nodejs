@@ -1,95 +1,102 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+// 1. IMPORTACIONES DE MÓDULOS
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const crypto = require('crypto');
+const expressSession = require('express-session');
+const fileUpload = require('express-fileupload');
+const { MongoClient } = require("mongodb");
 
-let app = express();
+// 2. INICIALIZACIÓN DE LA APP
+const app = express();
+let jwt = require('jsonwebtoken');
+app.set('jwt', jwt);
 
-let expressSession = require('express-session');
-app.use(expressSession({
-  secret: 'abcdefg',
-  resave: true,
-  saveUninitialized: true
-}));
-
-const userSessionRouter = require('./routes/userSessionRouter');
-const userAudiosRouter = require('./routes/userAudiosRouter');
-app.use("/songs/add", userSessionRouter);
-app.use("/publications", userSessionRouter);
-app.use("/audios/", userAudiosRouter);
-app.use("/shop/", userSessionRouter);
-app.use("/songs/favorites", userSessionRouter);
-// Proteger la ruta de compra: requiere sesión activa
-app.use("/songs/buy", userSessionRouter);
-
-let crypto = require('crypto');
-
-// Subida de archivos (fileupload)
-let fileUpload = require('express-fileupload');
-app.use(fileUpload({
-  limits: { fileSize: 50 * 1024 * 1024 },
-  createParentPath: true
-}));
+// 3. CONFIGURACIONES (Settings)
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'twig');
 app.set('uploadPath', __dirname);
 app.set('clave', 'abcdefg');
 app.set('crypto', crypto);
 
-// Middlewares básicos y Body-parser integrados
+// 4. MIDDLEWARES GLOBALES
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Motor de vistas
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'twig');
+// Sesiones
+app.use(expressSession({
+  secret: 'abcdefg',
+  resave: true,
+  saveUninitialized: true
+}));
 
-// Conexion a MongoDB
-const { MongoClient } = require("mongodb");
+// Gestión de archivos
+app.use(fileUpload({
+  limits: { fileSize: 50 * 1024 * 1024 },
+  createParentPath: true
+}));
+
+// 5. CONEXIÓN A BASE DE DATOS Y REPOSITORIOS
 const connectionStrings = 'mongodb+srv://admin:sdi@musicstorecluster.85bsu7o.mongodb.net/?appName=musicstorecluster';
 const dbClient = new MongoClient(connectionStrings);
 
-// Repositorios
-let songsRepository = require("./repositories/songsRepository.js");
-songsRepository.init(app, dbClient);
-app.set("songsRepository", songsRepository);
-
-let favoriteSongsRepository = require("./repositories/favoriteSongsRepository.js");
-favoriteSongsRepository.init(app, dbClient);
-
+// Importar Repositorios
+const songsRepository = require("./repositories/songsRepository.js");
+const favoriteSongsRepository = require("./repositories/favoriteSongsRepository.js");
 const usersRepository = require("./repositories/usersRepository.js");
+const commentsRepository = require("./repositories/commentsRepository.js");
+const purchasesRepository = require("./repositories/purchasesRepository.js");
+
+// Inicializar Repositorios
+songsRepository.init(app, dbClient);
+favoriteSongsRepository.init(app, dbClient);
 usersRepository.init(app, dbClient);
-require("./routes/users.js")(app, usersRepository);
-
-let commentsRepository = require("./repositories/commentsRepository.js");
 commentsRepository.init(app, dbClient);
-app.set("commentsRepository", commentsRepository);
-
-// Repositorio de compras (nuevo)
-let purchasesRepository = require("./repositories/purchasesRepository.js");
 purchasesRepository.init(app, dbClient);
+
+// Guardar en app (opcional, para acceder desde req.app.get)
+app.set("songsRepository", songsRepository);
+app.set("commentsRepository", commentsRepository);
 app.set("purchasesRepository", purchasesRepository);
 
+// 6. MIDDLEWARES DE CONTROL DE ACCESO (Router Log)
+const userSessionRouter = require('./routes/userSessionRouter');
+const userAudiosRouter = require('./routes/userAudiosRouter');
+
+app.use("/songs/add", userSessionRouter);
+app.use("/publications", userSessionRouter);
+app.use("/audios/", userAudiosRouter);
+app.use("/shop/", userSessionRouter);
+app.use("/songs/favorites", userSessionRouter);
+app.use("/songs/buy", userSessionRouter);
+
+const userTokenRouter = require('./routes/userTokenRouter');
+app.use("/api/v1.0/songs/", userTokenRouter);
+
+// 7. RUTAS (Routes)
+// API primero (buena práctica)
+require("./routes/api/songsAPIv1.0.js")(app, songsRepository,usersRepository);
+
+// Rutas de la web
+require("./routes/users.js")(app, usersRepository);
 require("./routes/comments.js")(app, commentsRepository);
-
-// 1. Primero las de favoritos (antes que songs.js, por el orden de procesamiento de rutas)
 require("./routes/songs/favorites.js")(app, favoriteSongsRepository);
-
-// 2. Luego las de canciones
 require("./routes/songs.js")(app, songsRepository);
 
-// 3. Luego las genéricas
-let indexRouter = require('./routes/index');
+// Índice
+const indexRouter = require('./routes/index');
 app.use('/', indexRouter);
 
-// catch 404 and forward to error handler
+// 8. MANEJO DE ERRORES (Debe ir al final)
 app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// error handler
 app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
