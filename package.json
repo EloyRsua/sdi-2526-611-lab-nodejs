@@ -1,0 +1,27 @@
+{
+  "name": "tienda_musica",
+  "version": "1.0.0",
+  "description": "Tienda de música ",
+  "homepage": "https://github.com/EloyRsua/sdi-2526-611-lab-nodejs#readme",
+  "bugs": {
+    "url": "https://github.com/EloyRsua/sdi-2526-611-lab-nodejs/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EloyRsua/sdi-2526-611-lab-nodejs.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "hello-world-server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "express": "^4.18.3",
+    "express-fileupload": "^1.5.2",
+    "express-session": "^1.19.0",
+    "mongodb": "^6.5.0"
+  }
+}
