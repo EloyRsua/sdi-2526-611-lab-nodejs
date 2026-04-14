@@ -298,4 +298,22 @@ module.exports = function (app, songsRepository, usersRepository) {
             res.status(400).json({ error: "Error: " + e.message });
         }
     });
+
+    app.get("/api/v1.0/pokemon-song", function (req, res) {
+        let rest = app.get("rest");
+        // Elegimos un Pokémon al azar entre los 151 originales
+        let idAleatorio = Math.floor(Math.random() * 151) + 1;
+        let url = "https://pokeapi.co/api/v2/pokemon/" + idAleatorio;
+
+        rest(url, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                let data = JSON.parse(body);
+                // Devolvemos el nombre con la primera letra en mayúscula
+                let nombre = data.name.charAt(0).toUpperCase() + data.name.slice(1);
+                res.status(200).json({ sugerencia: "La canción de " + nombre });
+            } else {
+                res.status(500).json({ sugerencia: "Error al invocar a PokeAPI" });
+            }
+        });
+    });
 };

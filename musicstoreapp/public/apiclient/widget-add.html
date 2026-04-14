@@ -36,6 +36,30 @@
     <button type="button" class="btn" onclick="widgetSongs()">Cancelar</button>
   </div>
 </div>
+
+<button type="button" class="btn btn-info btn-xs" onclick="generarNombrePoke()">
+  ¡Usa un Pokémon!
+</button>
+
+<script>
+
+  function generarNombrePoke() {
+    $.ajax({
+      url: URLbase + "/pokemon-song",
+      type: "GET",
+      headers: { "token": token },
+      success: function(response) {
+        // Rellenamos el input automáticamente con el nombre del Pokémon
+        $("#title-add").val(response.sugerencia);
+      },
+      error: function() {
+        alert("Vaya, el equipo Rocket ha cortado la conexión con PokeAPI");
+      }
+    });
+  }
+
+</script>
+
 <script>
   function widgetAddSong() {
     $("#add-errors").empty();
