@@ -1,7 +1,8 @@
-<div id="widget-songs" >
+<div id="widget-songs">
+    <div id="songs-errors"></div>
     <button class="btn btn-primary" onclick="widgetAddSong()">Nueva Canción</button>
-    <button class="btn" onclick="loadSongs()" >Actualizar</button>
-    <input type="text" class="form-control" placeholder="Filtrar por nombre" id="filter-byname"/>
+    <button class="btn" onclick="loadSongs()">Actualizar</button>
+    <input type="text" class="form-control" placeholder="Filtrar por nombre" id="filter-byname"/>
     <table class="table table-hover">
         <thead>
         <tr>
@@ -19,10 +20,9 @@
     var selectedSongId;
     var songs;
 
-    $('#filter-by-name').on('input',function(e){
-        let filteredSongs = [];
-        let filterValue = $("#filter-by-name").val();
-        filteredSongs = songs.filter(song => song.title.toLowerCase().includes(filterValue.toLowerCase()));
+    $('#filter-byname').on('input', function (e) {
+        let filterValue = $("#filter-byname").val();
+        let filteredSongs = songs.filter(song => song.title.toLowerCase().includes(filterValue.toLowerCase()));
         updateSongsTable(filteredSongs);
     });
 
@@ -42,8 +42,9 @@
             }
         });
     }
+
     function updateSongsTable(songs) {
-        $("#songsTableBody").empty(); // Vaciar la tabla
+        $("#songsTableBody").empty();
         for (let i = 0; i < songs.length; i++) {
             $("#songsTableBody").append(
                 "<tr id=" + songs[i]._id + ">" +
@@ -55,13 +56,13 @@
                 "<a onclick=songDelete('" + songs[i]._id + "')>Eliminar</a>" +
                 "</td>" +
                 "</tr>");
-            // Mucho cuidado con las comillas del eliminarCancion
-            //la id tiene que ir entre comillas ' '
         }
     }
+
     loadSongs();
 
     function songDelete(_id) {
+        $("#songs-errors").empty();
         $.ajax({
             url: URLbase + "/songs/" + _id,
             type: "DELETE",
@@ -69,44 +70,25 @@
             dataType: 'json',
             headers: {"token": token},
             success: function (response) {
-                console.log("Canción eliminada: " + _id);
-                $("#" + _id).remove(); // eliminar el <tr> de la canción
+                $("#" + _id).remove();
             },
-            error: function (error) {
-                $("#main-container").load("widget-login.html");
+            error: function (xhr) {
+                const resp = xhr.responseJSON;
+                let mensaje = "Error al eliminar la canción.";
+                if (xhr.status === 403) {
+                    mensaje = "No puedes eliminar esta canción porque no te pertenece.";
+                } else if (resp && resp.error) {
+                    mensaje = resp.error;
+                }
+                $("#songs-errors").html(
+                    "<div class='alert alert-danger'>" + mensaje + "</div>"
+                );
             }
         });
     }
+
     function songDetail(_id) {
         selectedSongId = _id;
         $("#main-container").load("widget-detail.html");
     }
-    function widgetAddSong() {
-        $( "#main-container" ).load( "widget-add.html");
-    }
-
-    var priceDesc = true;
-    function sortByPrice() {
-        if (priceDesc) {
-            songs.sort(function (a, b) {
-                return parseFloat(a.price) - parseFloat(b.price);
-            });
-        } else {
-            songs.sort(function (a, b) {
-                return parseFloat(b.price) - parseFloat(a.price);
-            });
-        }
-        updateSongsTable(songs);
-        priceDesc = !priceDesc //invertir ordenación
-    }
-
-    function sortByTitle() {
-        songs.sort(function (a, b) {
-            if (a.title > b.title) return 1;
-            if (a.title < b.title) return -1;
-            return 0;
-        });
-        updateSongsTable(songs);
-    }
-
 </script>
