@@ -1,7 +1,7 @@
 import "../assets/Card.css";
-const Card = ({ titulo, autor, precio, kind, imagen }) => {
+const Card = ({ titulo, autor, precio, kind, imagen,onClick }) => {
     return (
-        <div className="card">
+        <div className="card" onClick={onClick}>
             <img src={imagen} alt={titulo} className="card-img" />
             <h3>{titulo}</h3>
             <p className="autor">{autor}</p>

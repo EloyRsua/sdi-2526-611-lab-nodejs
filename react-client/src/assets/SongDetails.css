@@ -1,0 +1,62 @@
+. .song-details {
+    max-width: 40rem;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    background-color: #f2f2f2;
+    border-radius: 1rem;
+    box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15);
+}
+.song-details img {
+    width: 12rem;
+    height: 12rem;
+    object-fit: cover;
+    border-radius: 0.75rem;
+    background-color: #ddd;
+}
+.song-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+.song-info h2 {
+    margin: 0;
+    color: #222;
+}
+.precio {
+    font-weight: bold;
+    color: #1db954;
+    font-size: 1.2rem;
+}
+.song-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+}
+.song-actions button {
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.song-actions .delete {
+    background-color: #e74c3c;
+    color: white;
+}
+.song-actions .delete:hover {
+    background-color: #c0392b;
+}
+.song-actions .back {
+    background-color: #bdc3c7;
+}
+.song-actions .back:hover {
+    background-color: #95a5a6;
+}
+.error {
+    color: red;
+    text-align: center;
+}

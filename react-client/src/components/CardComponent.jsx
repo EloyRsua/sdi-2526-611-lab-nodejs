@@ -3,7 +3,7 @@ import "../assets/CardComponent.css";
 import Card from "./Card.jsx";
 import { apiFetch } from "../services/ApiService.js";
 import Portada from "../assets/logo.svg";
-const CardComponent = () => {
+const CardComponent = (onSelectSong) => {
     const [songs, setSongs] = useState([]);
     const loadSongs = () => {
         apiFetch("http://localhost:8081/api/v1.0/songs")
@@ -34,7 +34,9 @@ const CardComponent = () => {
                             autor={song.author}
                             precio={song.price}
                             imagen={Portada}
+                            onClick={() => onSelectSong(song._id)}
                         />
+
                     ))
                 )}
             </div>
