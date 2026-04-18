@@ -1,14 +1,19 @@
 import './assets/App.css';
-import Header from "./components/Header";
-import CardComponent from "./components/CardComponent";
-import Footer from "./components/Footer";
+import { useState } from "react";
+import Login from "./views/Login";
+import MainPage from "./views/MainPage";
 function App() {
-  return (
-      <div>
-        <Header />
-        <CardComponent />
-        <Footer />
-      </div>
-  );
+    const [logged, setLogged] = useState(
+        !!localStorage.getItem("token")
+    );
+    return (
+        <>
+            {!logged ? (
+                <Login onLogin={() => setLogged(true)} />
+            ) : (
+                <MainPage />
+            )}
+        </>
+    );
 }
 export default App;
