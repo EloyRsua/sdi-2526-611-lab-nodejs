@@ -1,0 +1,25 @@
+card {
+    border: 1px solid #ddd;
+    border-radius: 1rem;
+    padding: 1rem;
+    width: 220px;
+    text-align: center;
+    background-color: white;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.card-img {
+    width: 100%;
+    border-radius: 10px;
+}
+.autor {
+    color: #666;
+}
+.precio {
+    font-weight: bold;
+    color: #1db954;
+}
