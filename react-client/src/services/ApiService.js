@@ -18,7 +18,8 @@ export const apiFetch = async (url, options = {}) => {
             localStorage.removeItem("token");
             throw new Error("UNAUTHORIZED");
         }
-        throw new Error(data?.error || "Error en la API");
+        const errorMessage = data?.errors ? data.errors.join(". ") : (data?.error || "Error en la API");
+        throw new Error(errorMessage);
     }
     return data;
 };

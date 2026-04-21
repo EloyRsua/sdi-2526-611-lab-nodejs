@@ -30,6 +30,11 @@
 .add-song-form button:hover {
     background-color: #222;
 }
+.add-song-form button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    color: #888;
+}
 .error {
     background-color: #ff4d4d;
     color: white;
