@@ -127,7 +127,7 @@ app.use("/audios/", userAudiosRouter);
 app.use("/shop/", userSessionRouter);
 app.use("/songs/favorites", userSessionRouter);
 app.use("/songs/buy", userSessionRouter);
-app.use("/api/v1.0/songs/", userTokenRouter);
+app.use("/api/v1.0/songs", userTokenRouter);
 
 // 8. RUTAS (Routes)
 // API (Rutas de servicios)

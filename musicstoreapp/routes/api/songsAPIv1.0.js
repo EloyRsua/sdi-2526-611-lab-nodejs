@@ -168,7 +168,7 @@ module.exports = function (app, songsRepository, usersRepository) {
             title: req.body.title.trim(),
             kind: req.body.kind.toLowerCase(),
             price: parseFloat(req.body.price),
-            author: req.session.user
+            author: req.user
         };
 
         songsRepository.insertSong(song, function (songId) {
@@ -213,7 +213,7 @@ module.exports = function (app, songsRepository, usersRepository) {
             if (!song) {
                 return res.status(404).json({ error: "Canción no encontrada." });
             }
-            if (song.author !== req.session.user) {
+            if (song.author !== req.user) {
                 return res.status(403).json({ error: "No tienes permiso para eliminar esta canción." });
             }
 
@@ -270,7 +270,7 @@ module.exports = function (app, songsRepository, usersRepository) {
             if (!existing) {
                 return res.status(404).json({ error: "Canción no encontrada." });
             }
-            if (existing.author !== req.session.user) {
+            if (existing.author !== req.user) {
                 return res.status(403).json({ error: "No tienes permiso para modificar esta canción." });
             }
 

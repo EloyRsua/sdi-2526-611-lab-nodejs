@@ -14,7 +14,7 @@ userTokenRouter.use(function (req, res, next) {
                 });
             } else {
                 // dejamos correr la petición
-                res.user = infoToken.user;
+                req.user = infoToken.user;
                 next();
             }
         });
